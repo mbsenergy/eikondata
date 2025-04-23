@@ -11,9 +11,6 @@
 #'
 #' @return A data.table containing the spot price data (`date`, `smp`, and `RIC`) for the specified date range. The prices are cleaned by filling missing values.
 #'
-#' @examples
-#' # Example usage of retrieve_gas function
-#' data <- retrieve_gas("TTF", "2020-01-01", "2020-12-31")
 #'
 #' @import data.table
 #' @importFrom eikondata get_rics_d get_rics_h
@@ -33,20 +30,20 @@ retrieve_spot = function(ric, from_date, to_date, type = 'PWR') {
     # downloaded_spot = downloaded_spot[, .(date = TIMESTAMP, trade_close = PRICE, RIC)]
 
     # Filter data from the 'from_date'
-    history_ttf_all_s = downloaded_spot[date >= from_date]
-    data.table::setorderv(history_ttf_all_s, cols = 'date', order = -1L)
+    history_gas_all_s = downloaded_spot[date >= from_date]
+    data.table::setorderv(history_gas_all_s, cols = 'date', order = -1L)
 
     # Filter data until the 'to_date'
-    history_ttf_s = history_ttf_all_s[date <= to_date]
+    history_gas_all_s = history_gas_all_s[date <= to_date]
 
     # Clean data (convert 'trade_close' to numeric and fill missing values)
-    history_ttf_s[, value := as.numeric(value)]
-    history_ttf_s[, value := data.table::nafill(value, 'locf'), by = 'RIC']
-    history_ttf_s[, value := data.table::nafill(value, 'nocb'), by = 'RIC']
+    history_gas_all_s[, value := as.numeric(value)]
+    history_gas_all_s[, value := data.table::nafill(value, 'locf'), by = 'RIC']
+    history_gas_all_s[, value := data.table::nafill(value, 'nocb'), by = 'RIC']
 
     print_retrieval_done(message = 'Spot Gas retrieval finished.')
 
-    return(history_ttf_s)
+    return(history_gas_all_s)
 
   } else if(type == 'PWR') {
 
@@ -60,7 +57,7 @@ retrieve_spot = function(ric, from_date, to_date, type = 'PWR') {
     history_pwr_all_s = downloaded_spot[date >= from_date]
     data.table::setorderv(history_pwr_all_s, cols =c('date','hour'), order = -1L)
 
-    history_ttf_s = history_pwr_all_s[date <= to_date]
+    history_pwr_all_s = history_pwr_all_s[date <= to_date]
 
     history_pwr_all_s[, value := as.numeric(value)]
     history_pwr_all_s[, value := data.table::nafill(value, 'locf'), by = 'RIC']
@@ -90,10 +87,6 @@ retrieve_spot = function(ric, from_date, to_date, type = 'PWR') {
 #'
 #' @return A data.table containing the spot price data (`date`, `smp`, and `RIC`) for the specified date range. The prices are cleaned by filling missing values.
 #'
-#' @examples
-#' # Example usage of retrieve_gas function
-#' data <- retrieve_gas("TTF", "2020-01-01", "2020-12-31")
-#'
 #' @import data.table
 #' @importFrom eikondata get_rics_f
 #' @export
@@ -117,6 +110,76 @@ retrieve_fwd = function(ric, from_date, to_date) {
 
 
 
+## Continuation -------------------------------------------------------------------------------------
+
+#' Retrieve Historical Continuation RICs from Eikon
+#'
+#' This function fetches daily historical time series data (close, volume) for a list of commodity continuation RICs
+#' between specified dates using the `eikondata` package, and joins the results with metadata.
+#'
+#' @param list_continuation A character vector of basket commodities to include.
+#' @param start_train Start date in 'YYYY-MM-DD' format.
+#' @param end_train End date in 'YYYY-MM-DD' format.
+#' @param cont c1 or c2.
+#'
+#' @return A data.table containing daily historical close and volume data for each continuation RIC with metadata.
+#' @export
+#'
+#' @import data.table
+retrieve_cont = function(list_continuation, start_train, end_train, cont = 'c1') {
+
+  # Set Eikon API config
+  # Filter continuation RICs by commodity
+  list_cont_codes = eikondata::products_continuation[
+    COMMODITY %in% list_continuation
+  ]
+
+  # Fetch time series per continuation RIC
+  if(cont == 'c1') {cond_codes = list_cont_codes$c1} else {cond_codes = list_cont_codes$c2}
+
+  list_cont = lapply(cond_codes, function(x) {
+    tryCatch({
+      DT = eikondata::get_timeseries(
+        rics = x,
+        fields = c("TIMESTAMP", "CLOSE", "VOLUME"),
+        start_date = paste0(start_train, "T00:00:00"),
+        end_date = paste0(end_train, "T00:00:00"),
+        interval = "daily"
+      )
+      print_retrieval_message(rics = x, from_date = start_train, to_date = end_train, nrows = nrow(DT))
+      setDT(DT)
+    }, error = function(e) {
+      message(sprintf("Failed to retrieve data for RIC: %s - %s", x, e$message))
+      return(NULL)
+    })
+  })
+
+  # Combine results
+  dt_cont = rbindlist(list_cont, use.names = TRUE, fill = TRUE)
+  colnames(dt_cont) = c("DATE", "VALUE", "VOLUME", "RIC")
+
+  # Clean and convert columns
+  dt_cont[, DATE := as.Date(sub("T.*", "", DATE))]
+  dt_cont[, VALUE := as.numeric(VALUE)]
+  dt_cont[, VOLUME := as.numeric(VOLUME)]
+
+  # Join with metadata
+  dt_cont = merge(
+    melt(list_cont_codes, id.vars = "COMMODITY", variable.name = "TYPE", value.name = "RIC"),
+    dt_cont,
+    by = "RIC",
+    all.y = TRUE
+  )
+
+  print_retrieval_done(message = 'Continuation retrieval finished.')
+
+  return(dt_cont)
+
+}
+
+
+
+
 ## Commenting -------------------------------------------------------------------------------------
 
 #' Print Gas Retrieval Completion Message with Colors
@@ -125,9 +188,6 @@ retrieve_fwd = function(ric, from_date, to_date) {
 #' @param message A character string representing the message to display after the ✔ symbol.
 #'
 #' @return Prints a formatted message to the console but does not return a value.
-#'
-#' @examples
-#' print_gas_retrieval_done()
 #'
 #' @import crayon
 #' @importFrom glue glue

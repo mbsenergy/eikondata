@@ -18,6 +18,3 @@ A character vector of RICs.
 This function generates Reuters Instrument Codes (RICs) based on selected power codes.
 It automatically retrieves the required environment variables.
 }
-\examples{
-lst_rics_pwr <- generate_rics_pwr(LST_PARAMS$selected_PWR_codes)
-}

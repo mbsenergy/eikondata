@@ -13,19 +13,8 @@ generate_monthrics_gas(selected_GAS_codes, time_range)
 }
 \value{
 A character vector of monthly RICs.
-
-A data.table with columns `RIC` and `date` (YYYY-MM-01).
 }
 \description{
 This function generates Reuters Instrument Codes (RICs) for monthly gas contracts
 based on the selected gas codes and time range. It excludes quarterly and yearly codes.
-}
-\examples{
-lst_monthly_rics <- generate_monthrics_gas(c("TFMB"), 2025)
-Generate Monthly RICs for Gas Codes
-
-This function generates Reuters Instrument Codes (RICs) for monthly gas contracts
-based on the selected gas codes and time range. It excludes quarterly and yearly codes.
-
-dt_monthly_rics <- generate_monthrics_gas(c("TFMB"), 2025)
 }

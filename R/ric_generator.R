@@ -10,8 +10,6 @@
 #' @export
 #' @import data.table
 #'
-#' @examples
-#' lst_rics_gas <- generate_rics_gas(LST_PARAMS$selected_GAS_codes)
 generate_rics_gas = function(selected_GAS_codes, time_range) {
   # Retrieve environment variables
   timeframe_GAS_code = c("MF", "MG", "MH", "MJ", "MK", "MM", "MN", "MQ", "MU", "MV", "MX", "MZ",
@@ -63,8 +61,6 @@ generate_rics_gas = function(selected_GAS_codes, time_range) {
 #' @export
 #' @import data.table
 #'
-#' @examples
-#' lst_rics_pwr <- generate_rics_pwr(LST_PARAMS$selected_PWR_codes)
 generate_rics_pwr = function(selected_PWR_codes, time_range) {
   # Retrieve environment variables
 
@@ -123,22 +119,6 @@ generate_rics_pwr = function(selected_PWR_codes, time_range) {
 #' @export
 #' @import data.table
 #'
-#' @examples
-#' lst_monthly_rics <- generate_monthrics_gas(c("TFMB"), 2025)
-#' Generate Monthly RICs for Gas Codes
-#'
-#' This function generates Reuters Instrument Codes (RICs) for monthly gas contracts
-#' based on the selected gas codes and time range. It excludes quarterly and yearly codes.
-#'
-#' @param selected_GAS_codes A character vector of selected gas base codes (e.g., "TFMB").
-#' @param time_range Numeric vector of years (e.g., 2024:2025).
-#'
-#' @return A data.table with columns `RIC` and `date` (YYYY-MM-01).
-#' @export
-#' @import data.table
-#'
-#' @examples
-#' dt_monthly_rics <- generate_monthrics_gas(c("TFMB"), 2025)
 generate_monthrics_gas = function(selected_GAS_codes, time_range) {
   timeframe_months = c("MF", "MG", "MH", "MJ", "MK", "MM", "MN", "MQ", "MU", "MV", "MX", "MZ")
   reuters_months = eikondata::reuters_months
@@ -175,8 +155,6 @@ generate_monthrics_gas = function(selected_GAS_codes, time_range) {
 #' @export
 #' @import data.table
 #'
-#' @examples
-#' dt_monthly_rics <- generate_monthrics_pwr(c("PWRB"), 2025)
 generate_monthrics_pwr = function(selected_PWR_codes, time_range) {
 
   pwr_codes = eikondata::pwr_products_full[countries %in% selected_PWR_codes]$products_PWR_code

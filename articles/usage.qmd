@@ -1,10 +1,6 @@
 ---
 title: "Using the eikonapir package from scratch"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Using the eikonapir package from scratch}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output: html
 ---
 
 ## Overview

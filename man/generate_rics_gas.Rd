@@ -18,6 +18,3 @@ A character vector of RICs.
 This function generates Reuters Instrument Codes (RICs) based on the selected gas codes.
 It automatically retrieves the required environment variables.
 }
-\examples{
-lst_rics_gas <- generate_rics_gas(LST_PARAMS$selected_GAS_codes)
-}

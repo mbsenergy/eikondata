@@ -13,8 +13,26 @@ cat(blue$bold("\nRunning tests for get_timeseries()...\n"))
 cat(blue("\nTest 1: Basic function call with valid parameters...\n"))
 result <- get_timeseries(
   rics = "TTFDA",
-  fields = c("TIMESTAMP", "CLOSE"),
+  fields = c("TIMESTAMP", "CLOSE", "VOLUME"),
   start_date = "2024-01-01T00:00:00",
+  end_date = "2024-01-10T00:00:00",
+  interval = "daily"
+)
+
+print(result)
+
+if (is.data.frame(result)) {
+  cat(green("✔ Test 1 passed: Function returned a data frame.\n"))
+} else {
+  cat(red("✖ Test 1 failed: Expected a data frame.\n"))
+}
+
+# Test 1: Basic function call
+cat(blue("\nTest 1: Basic function call with valid parameters...\n"))
+result <- get_timeseries(
+  rics = "HEEGRAUCH03",
+  fields = c("TIMESTAMP", "CLOSE", "VOLUME"),
+  start_date = "2020-01-01T00:00:00",
   end_date = "2024-01-10T00:00:00",
   interval = "daily"
 )

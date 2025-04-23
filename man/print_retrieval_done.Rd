@@ -15,7 +15,3 @@ Prints a formatted message to the console but does not return a value.
 \description{
 This function prints a message indicating that gas retrieval has finished. The message is formatted with colors using the `crayon` package.
 }
-\examples{
-print_gas_retrieval_done()
-
-}

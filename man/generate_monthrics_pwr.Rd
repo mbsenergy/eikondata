@@ -18,6 +18,3 @@ A data.table with columns `RIC` and `date` (YYYY-MM-01).
 This function generates Reuters Instrument Codes (RICs) for monthly power contracts
 based on the selected power codes and time range. It excludes quarterly and yearly codes.
 }
-\examples{
-dt_monthly_rics <- generate_monthrics_pwr(c("PWRB"), 2025)
-}

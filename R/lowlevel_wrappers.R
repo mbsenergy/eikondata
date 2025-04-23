@@ -36,17 +36,26 @@
 #' @export
 get_rics_d = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.Date()) {
 
+  data_fields = c("TIMESTAMP", "CLOSE", "VOLUME")
+  interval_field = 'daily'
   start_date = paste0(from_date, 'T00:00:00')
   end_date = paste0(to_date, 'T00:00:00')
 
   # Download Data
-  db = get_timeseries(
-    rics = list(rics),
-    fields = list('TIMESTAMP', 'CLOSE', 'VOLUME'),
-    start_date = start_date,
-    end_date = end_date,
-    interval = "daily"
-  )
+  db = lapply(rics, function(x) {
+    result <- get_timeseries(
+      rics = x,
+      fields = data_fields,
+      start_date = start_date,
+      end_date = end_date,
+      interval = interval_field
+    )
+    # print(result)
+    Sys.sleep(2)
+    return(result)
+  })
+
+  db = rbindlist(db, use.names = TRUE, fill = TRUE)
 
   # Rename and process columns
   colnames(db) = c('DATE', 'CLOSE','VOLUME', 'RIC')
@@ -65,6 +74,7 @@ get_rics_d = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 
   # Print retrieval message
   rows_count = nrow(db)
+  Sys.sleep(2)
   print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
 
   return(db)
@@ -113,11 +123,24 @@ get_rics_h = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
   rics_id_h = paste0(rics, rics_id_24)
 
   # Format dates
+  data_fields = c("TIMESTAMP", "CLOSE", "VOLUME")
+  interval_field = 'daily'
   start_date = paste0(from_date, 'T00:00:00')
   end_date = paste0(to_date, 'T00:00:00')
 
   # Fetch data
-  db = lapply(rics_id_h, get_timeseries, fields = list('TIMESTAMP', 'CLOSE', 'VOLUME'), start_date = start_date, end_date = end_date)
+  db = lapply(rics_id_h, function(x) {
+    result <- get_timeseries(
+      rics = x,
+      fields = data_fields,
+      start_date = start_date,
+      end_date = end_date,
+      interval = interval_field
+    )
+    # print(result)
+    Sys.sleep(5)
+    return(result)
+  })
 
   # Combine results
   db_24h = rbindlist(db, use.names = TRUE, fill = TRUE)
@@ -143,6 +166,7 @@ get_rics_h = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 
   # Print retrieval message
   rows_count = nrow(db_24h)
+  Sys.sleep(5)
   print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
 
   return(db_24h)
@@ -222,6 +246,7 @@ get_rics_f = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 
     # Print retrieval message
     rows_count = nrow(db)
+    Sys.sleep(5)
     print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
 
   }

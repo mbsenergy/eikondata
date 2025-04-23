@@ -21,8 +21,3 @@ A data.table containing the spot price data (`date`, `smp`, and `RIC`) for the s
 \description{
 This function retrieves spot data for a given RIC (identifier) and date range. It merges the data, performs necessary data cleaning and transformation.
 }
-\examples{
-# Example usage of retrieve_gas function
-data <- retrieve_gas("TTF", "2020-01-01", "2020-12-31")
-
-}
