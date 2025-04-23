@@ -37,8 +37,8 @@ jobs:
 
       - name: Build site
         run: |
-          # If parallel = TRUE in render_docs()
-          # future::plan(future::multicore)
+          install.packages("remotes")
+          remotes::install_github("hadley/emo")
           install.packages(".", repos = NULL, type = "source")
           install.packages("pkgload")
           pkgload::load_all()
