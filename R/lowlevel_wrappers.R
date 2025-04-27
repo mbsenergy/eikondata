@@ -51,7 +51,6 @@ get_rics_d = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
       interval = interval_field
     )
     # print(result)
-    Sys.sleep(2)
     return(result)
   })
 
@@ -74,7 +73,6 @@ get_rics_d = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 
   # Print retrieval message
   rows_count = nrow(db)
-  Sys.sleep(2)
   print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
 
   return(db)
@@ -138,7 +136,6 @@ get_rics_h = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
       interval = interval_field
     )
     # print(result)
-    Sys.sleep(5)
     return(result)
   })
 
@@ -166,7 +163,6 @@ get_rics_h = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 
   # Print retrieval message
   rows_count = nrow(db_24h)
-  Sys.sleep(5)
   print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
 
   return(db_24h)
@@ -246,7 +242,6 @@ get_rics_f = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 
     # Print retrieval message
     rows_count = nrow(db)
-    Sys.sleep(5)
     print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
 
   }
