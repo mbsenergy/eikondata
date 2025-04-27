@@ -1,0 +1,107 @@
+---
+title: "Using the eikonapir package from scratch"
+format: 
+  html:
+    toc: true
+    html-math-method: mathjax
+vignette: >
+  %\VignetteIndexEntry{GME Offers Data Processing}
+  %\VignetteEngine{quarto::html}
+---
+
+## Overview
+
+This vignette describes a set of tests to validate the functionality of the `get_timeseries()` function and related functions for retrieving market data. We will test:
+
+1. **Basic function call** with valid parameters
+2. **Raw JSON output** from `get_timeseries()`
+3. **Retrieve Daily Historical Market Data** using `get_rics_d()`
+4. **Retrieve Hourly Time Series Data** using `get_rics_h()`
+5. **Retrieve Forward Market Data** using `get_rics_f()`
+
+The tests check that the functions return the expected data types and formats, and help ensure that data retrieval works as expected.
+
+## Setup
+
+Before running the tests, you need to configure the **connection to the Reuters API** and ensure you have the correct environment variables and credentials:
+
+```{r}
+#| eval: false
+
+library(data.table)
+library(eikondata)
+library(echarts4r)
+library(reactable)
+
+# Set up proxy and API credentials
+set_proxy_port(9000L)
+PLEASE_INSERT_REUTERS_KEY = Sys.getenv('REUTERS_KEY')
+set_app_id(as.character(PLEASE_INSERT_REUTERS_KEY[1]))
+```
+
+## Basic Function Call with Valid Parameters
+In this test, we check whether the `get_timeseries()` function works with valid parameters, including RIC, fields, start and end dates, and the interval.
+
+```{r}
+#| eval: false
+
+result <- get_timeseries(
+  rics = "TTFDA",
+  fields = c("TIMESTAMP", "CLOSE"),
+  start_date = "2024-01-01T00:00:00",
+  end_date = "2024-01-10T00:00:00",
+  interval = "daily"
+)
+
+```
+
+## Raw JSON Output
+In this test, we fetch raw JSON output by setting the `raw_output = TRUE` argument. This test verifies that the `get_timeseries()` function can handle and return raw JSON data.
+```{r}
+#| eval: false
+
+result_json <- get_timeseries(
+  rics = "FDBYc1",
+  fields = c("TIMESTAMP", "CLOSE"),
+  start_date = "2024-01-01T00:00:00",
+  end_date = "2024-01-10T00:00:00",
+  interval = "daily",
+  raw_output = TRUE
+)
+
+```
+
+## Retrieve Daily Historical Market Data
+In this test, we use the `get_rics_d()` function to fetch daily market data for a given RIC (`TTFDA`) over a specified date range.
+```{r}
+#| eval: false
+
+daily_data <- get_rics_d(rics = "TTFDA", from_date = "2020-01-01", to_date = "2023-01-01")
+
+```
+
+## Retrieve Hourly Time Series Data
+In this test, we use the `get_rics_h()` function to retrieve hourly time series data for a given RIC (`HEEGRAUCH`) over a specified date range.
+
+```{r}
+#| eval: false
+
+hourly_data <- get_rics_h(rics = "GMEIT", from_date = "2020-01-01", to_date = "2020-01-03")
+
+```
+
+## Retrieve Forward Market Data
+In this test, we use the `get_rics_f()` function to retrieve forward market data for a specified RIC (`FDBMJ5`) over a specified date range.
+
+```{r}
+#| eval: false
+
+forward_data <- get_rics_f(rics = "FDBMJ4^2", from_date = "2023-01-01", to_date = "2023-12-31")
+
+```
+
+
+## Conclusion
+This vignette has demonstrated how to test the `get_timeseries()` function and associated functions (`get_rics_d()`, `get_rics_h()`, and `get_rics_f()`) for retrieving market data. These tests help ensure that the functions return data in the expected format and handle edge cases appropriately.
+
+
