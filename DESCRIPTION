@@ -26,4 +26,3 @@ Imports:
     data.table
 Remotes:  
     hadley/emo
-VignetteBuilder: quarto
