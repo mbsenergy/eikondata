@@ -1,4 +1,10 @@
-# eikondata  
+
+[![MBSENERGY](https://img.shields.io/badge/MBS-ENERGY-037f8c?style=for-the-badge)](mbsconsulting.com)
+[![Made with R](https://img.shields.io/badge/Made%20with-rstats-88c0d0?style=for-the-badge&logo=r)](https://cran.r-project.org/)
+
+
+# eikondata <a href="https://mbsconsulting.com"><img src="man/figures/eikondata.png" align="right" height="180" /></a>
+
 **R wrapper for LSEG Eikon Data API**
 
 ---
