@@ -4,7 +4,12 @@
 \alias{get_rics_f}
 \title{Retrieve Forward Market Data for a Given RIC}
 \usage{
-get_rics_f(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.Date())
+get_rics_f(
+  rics,
+  from_date = Sys.Date() - (365 * 10),
+  to_date = Sys.Date(),
+  legacy = FALSE
+)
 }
 \arguments{
 \item{rics}{A character string representing the RIC (identifier) whose forward market data is to be retrieved.}

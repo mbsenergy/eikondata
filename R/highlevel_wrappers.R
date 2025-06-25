@@ -13,7 +13,6 @@
 #'
 #'
 #' @import data.table
-#' @importFrom eikondata get_rics_d get_rics_h
 #' @export
 retrieve_spot = function(ric, from_date, to_date, type = 'PWR') {
 
@@ -88,7 +87,6 @@ retrieve_spot = function(ric, from_date, to_date, type = 'PWR') {
 #' @return A data.table containing the spot price data (`date`, `smp`, and `RIC`) for the specified date range. The prices are cleaned by filling missing values.
 #'
 #' @import data.table
-#' @importFrom eikondata get_rics_f
 #' @export
 retrieve_fwd = function(ric, from_date, to_date) {
 

@@ -3,6 +3,7 @@ library(crayon)
 library(jsonlite)
 devtools::load_all()
 
+
 set_proxy_port(9000L)
 PLEASE_INSERT_REUTERS_KEY = Sys.getenv('REUTERS_KEY')
 set_app_id(as.character(PLEASE_INSERT_REUTERS_KEY[1]))
@@ -68,17 +69,49 @@ cat(blue$bold("\nAll tests completed.\n"))
 
 
 
+cat(blue$bold("\nRunning tests for lowlevel()...\n"))
+
 # Test 1: Retrieve Daily Historical Market Data
 cat("\nTest 1: Retrieve Daily Historical Market Data\n")
 daily_data <- get_rics_d(rics = "TTFDA", from_date = "2020-01-01", to_date = "2023-01-01")
-print(head(daily_data))
+print(daily_data)
+fwrite(daily_data, 'daily_data.csv')
+
 
 # Test 2: Retrieve Hourly Time Series Data
 cat("\nTest 2: Retrieve Hourly Time Series Data\n")
-hourly_data <- get_rics_h(rics = "HEEGRAUCH", from_date = "2020-01-01", to_date = "2020-01-03")
+hourly_data <- get_rics_h(rics = "HEEGRAUCH", from_date = "2025-01-01", to_date = "2025-01-03")
 print(head(hourly_data))
+fwrite(hourly_data, 'hourly_data.csv')
+
 
 # Test 3: Retrieve Forward Market Data
 cat("\nTest 3: Retrieve Forward Market Data\n")
-forward_data <- get_rics_f(rics = "FDBMJ5", from_date = "2023-01-01", to_date = "2023-12-31")
-print(head(forward_data))
+forward_data <- get_rics_f(rics = "FDBMJ5", from_date = "2024-01-01", to_date = "2025-12-31")
+print(forward_data)
+fwrite(forward_data, 'forward_data.csv')
+
+
+
+cat(blue$bold("\nRunning tests for highlevel...\n"))
+
+# Test 1: Retrieve Spot Gas Historical Market Data
+cat("\nTest 1: Retrieve Spot Gas Historical Market Data\n")
+spot_gas_data <- retrieve_spot(ric = "TTFDA", from_date = "2020-01-01", to_date = "2023-01-01", type = "GAS")
+print(head(spot_gas_data))
+
+# Test 2: Retrieve Spot Power Historical Market Data
+cat("\nTest 2: Retrieve Spot Power Historical Market Data\n")
+spot_pwr_data <- retrieve_spot(ric = "GMEIT", from_date = "2020-01-01", to_date = "2023-01-01", type = "PWR")
+print(head(spot_pwr_data))
+
+# Test 3: Retrieve Spot Power Historical Market Data
+cat("\nTest 3: Retrieve FWD Data\n")
+time_range = as.numeric(data.table::year(as.Date('2024-01-01'))):as.numeric(data.table::year(as.Date('2025-12-31')))
+calendar = eikondata::calendar_holidays
+calendar[,`:=` (year = as.character(data.table::year(date)), quarter = as.character(data.table::quarter(date)), month = as.character(data.table::month(date)))]
+
+lst_rics_pwr = eikondata::generate_rics_pwr('Italy', time_range = time_range)
+
+spot_fwd_data = eikondata::retrieve_fwd(ric = lst_rics_pwr, from_date = '2024-01-01', to_date = '2025-12-31')
+print(head(spot_fwd_data))

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Using the eikonapir package from scratch</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+width: 0.8em;
+margin: 0 0.8em 0.2em -1em;  vertical-align: middle;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+}
+pre.numberSource { margin-left: 3em; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+
+
+<style type="text/css">body {background-color: #fff;margin: 1em auto;max-width: 700px;overflow: visible;padding-left: 2em;padding-right: 2em;font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;font-size: 14px;line-height: 1.35;}table {margin: 1em auto;border-width: 1px;border-color: #DDDDDD;border-style: outset;border-collapse: collapse;}table th {border-width: 2px;padding: 5px;border-style: inset;}table td {border-width: 1px;border-style: inset;line-height: 18px;padding: 5px 5px;}table, table th, table td {border-left-style: none;border-right-style: none;}table thead, table tr.even {background-color: #f7f7f7;}p {margin: 0.5em 0;}blockquote {background-color: #f6f6f6;padding: 0.25em 0.75em;}hr {border-style: solid;border: none;border-top: 1px solid #777;margin: 28px 0;}dl {margin-left: 0;}dl dd {margin-bottom: 13px;margin-left: 13px;}dl dt {font-weight: bold;}ul {margin-top: 0;}ul li {list-style: circle outside;}ul ul {margin-bottom: 0;}pre, code {background-color: #f7f7f7;border-radius: 3px;color: #333;white-space: pre-wrap; }pre {border-radius: 3px;margin: 5px 0px 10px 0px;padding: 10px;}pre:not([class]) {background-color: #f7f7f7;}code {font-family: Consolas, Monaco, 'Courier New', monospace;font-size: 85%;}p > code, li > code {padding: 2px 0px;}div.figure {text-align: center;}img {background-color: #FFFFFF;padding: 2px;border: 1px solid #DDDDDD;border-radius: 3px;border: 1px solid #CCCCCC;margin: 0 5px;}h1 {margin-top: 0;font-size: 35px;line-height: 40px;}h2 {border-bottom: 4px solid #f7f7f7;padding-top: 10px;padding-bottom: 2px;font-size: 145%;}h3 {border-bottom: 2px solid #f7f7f7;padding-top: 10px;font-size: 120%;}h4 {border-bottom: 1px solid #f7f7f7;margin-left: 8px;font-size: 105%;}h5, h6 {border-bottom: 1px solid #ccc;font-size: 105%;}a {color: #0033dd;text-decoration: none;}a:hover {color: #6666ff; }a:visited {color: #800080; }a:visited:hover {color: #BB00BB; }a[href^="http:"] {text-decoration: underline; }a[href^="https:"] {text-decoration: underline; }</style>
+</head>
+
+<body>
+
+
+<header id="title-block-header">
+<h1 class="title">Using the eikonapir package from scratch</h1>
+
+</header>
+
+<nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview">Overview</a></li>
+  <li><a href="#setup" id="toc-setup">Setup</a></li>
+  <li><a href="#basic-function-call-with-valid-parameters" id="toc-basic-function-call-with-valid-parameters">Basic Function Call with Valid Parameters</a></li>
+  <li><a href="#raw-json-output" id="toc-raw-json-output">Raw JSON Output</a></li>
+  <li><a href="#retrieve-daily-historical-market-data" id="toc-retrieve-daily-historical-market-data">Retrieve Daily Historical Market Data</a></li>
+  <li><a href="#retrieve-hourly-time-series-data" id="toc-retrieve-hourly-time-series-data">Retrieve Hourly Time Series Data</a></li>
+  <li><a href="#retrieve-forward-market-data" id="toc-retrieve-forward-market-data">Retrieve Forward Market Data</a></li>
+  <li><a href="#conclusion" id="toc-conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+<h2 id="overview">Overview</h2>
+<p>This vignette describes a set of tests to validate the functionality of the <code>get_timeseries()</code> function and related functions for retrieving market data. We will test:</p>
+<ol type="1">
+<li><strong>Basic function call</strong> with valid parameters</li>
+<li><strong>Raw JSON output</strong> from <code>get_timeseries()</code></li>
+<li><strong>Retrieve Daily Historical Market Data</strong> using <code>get_rics_d()</code></li>
+<li><strong>Retrieve Hourly Time Series Data</strong> using <code>get_rics_h()</code></li>
+<li><strong>Retrieve Forward Market Data</strong> using <code>get_rics_f()</code></li>
+</ol>
+<p>The tests check that the functions return the expected data types and formats, and help ensure that data retrieval works as expected.</p>
+<h2 id="setup">Setup</h2>
+<p>Before running the tests, you need to configure the <strong>connection to the Reuters API</strong> and ensure you have the correct environment variables and credentials:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(eikondata)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(echarts4r)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reactable)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Set up proxy and API credentials</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">set_proxy_port</span>(<span class="dv">9000</span>L)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>PLEASE_INSERT_REUTERS_KEY <span class="ot">=</span> <span class="fu">Sys.getenv</span>(<span class="st">&#39;REUTERS_KEY&#39;</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">set_app_id</span>(<span class="fu">as.character</span>(PLEASE_INSERT_REUTERS_KEY[<span class="dv">1</span>]))</span></code></pre></div>
+</div>
+<h2 id="basic-function-call-with-valid-parameters">Basic Function Call with Valid Parameters</h2>
+<p>In this test, we check whether the <code>get_timeseries()</code> function works with valid parameters, including RIC, fields, start and end dates, and the interval.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">get_timeseries</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">rics =</span> <span class="st">&quot;TTFDA&quot;</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">fields =</span> <span class="fu">c</span>(<span class="st">&quot;TIMESTAMP&quot;</span>, <span class="st">&quot;CLOSE&quot;</span>),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">start_date =</span> <span class="st">&quot;2024-01-01T00:00:00&quot;</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">end_date =</span> <span class="st">&quot;2024-01-10T00:00:00&quot;</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">interval =</span> <span class="st">&quot;daily&quot;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<h2 id="raw-json-output">Raw JSON Output</h2>
+<p>In this test, we fetch raw JSON output by setting the <code>raw_output = TRUE</code> argument. This test verifies that the <code>get_timeseries()</code> function can handle and return raw JSON data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>result_json <span class="ot">&lt;-</span> <span class="fu">get_timeseries</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">rics =</span> <span class="st">&quot;FDBYc1&quot;</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">fields =</span> <span class="fu">c</span>(<span class="st">&quot;TIMESTAMP&quot;</span>, <span class="st">&quot;CLOSE&quot;</span>),</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">start_date =</span> <span class="st">&quot;2024-01-01T00:00:00&quot;</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">end_date =</span> <span class="st">&quot;2024-01-10T00:00:00&quot;</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">interval =</span> <span class="st">&quot;daily&quot;</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">raw_output =</span> <span class="cn">TRUE</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<h2 id="retrieve-daily-historical-market-data">Retrieve Daily Historical Market Data</h2>
+<p>In this test, we use the <code>get_rics_d()</code> function to fetch daily market data for a given RIC (<code>TTFDA</code>) over a specified date range.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>daily_data <span class="ot">&lt;-</span> <span class="fu">get_rics_d</span>(<span class="at">rics =</span> <span class="st">&quot;TTFDA&quot;</span>, <span class="at">from_date =</span> <span class="st">&quot;2020-01-01&quot;</span>, <span class="at">to_date =</span> <span class="st">&quot;2023-01-01&quot;</span>)</span></code></pre></div>
+</div>
+<h2 id="retrieve-hourly-time-series-data">Retrieve Hourly Time Series Data</h2>
+<p>In this test, we use the <code>get_rics_h()</code> function to retrieve hourly time series data for a given RIC (<code>HEEGRAUCH</code>) over a specified date range.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>hourly_data <span class="ot">&lt;-</span> <span class="fu">get_rics_h</span>(<span class="at">rics =</span> <span class="st">&quot;GMEIT&quot;</span>, <span class="at">from_date =</span> <span class="st">&quot;2020-01-01&quot;</span>, <span class="at">to_date =</span> <span class="st">&quot;2020-01-03&quot;</span>)</span></code></pre></div>
+</div>
+<h2 id="retrieve-forward-market-data">Retrieve Forward Market Data</h2>
+<p>In this test, we use the <code>get_rics_f()</code> function to retrieve forward market data for a specified RIC (<code>FDBMJ5</code>) over a specified date range.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>forward_data <span class="ot">&lt;-</span> <span class="fu">get_rics_f</span>(<span class="at">rics =</span> <span class="st">&quot;FDBMJ4^2&quot;</span>, <span class="at">from_date =</span> <span class="st">&quot;2023-01-01&quot;</span>, <span class="at">to_date =</span> <span class="st">&quot;2023-12-31&quot;</span>)</span></code></pre></div>
+</div>
+<h2 id="conclusion">Conclusion</h2>
+<p>This vignette has demonstrated how to test the <code>get_timeseries()</code> function and associated functions (<code>get_rics_d()</code>, <code>get_rics_h()</code>, and <code>get_rics_f()</code>) for retrieving market data. These tests help ensure that the functions return data in the expected format and handle edge cases appropriately.</p>
+
+
+
+
+
+</body></html>

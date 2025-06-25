@@ -205,47 +205,64 @@ get_rics_h = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 #'
 #' @import data.table
 #' @export
-get_rics_f = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.Date()) {
+get_rics_f = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.Date(), legacy = FALSE) {
 
-  start_date = paste0(from_date, 'T00:00:00')
-  end_date = paste0(to_date, 'T00:00:00')
+  if(isFALSE(legacy)) {
 
-  # Download Data
-  db = get_timeseries(
-    rics = list(rics),
-    fields = list('TIMESTAMP', 'CLOSE', 'VOLUME'),
-    start_date = start_date,
-    end_date = end_date,
-    interval = "daily"
-  )
+    flux = load_flux_module()
 
-  if (is.null(db) || nrow(db) == 0 || all(is.na(db[[1]]))) {
-    warning(sprintf("No valid data found for RIC: %s", rics))
-    db = data.table(date = NA_character_, ric = rics, value = NA_real_, volume = NA_real_)
-    print_retrieval_message(rics = rics, from_date = 'NO DATA', to_date = 'NO DATA', nrows = 'NO DATA')
-  } else {
+    dts = flux$get_rics_d(rics = rics, from_date = from_date, to_date = to_date)
 
-    # Rename and process columns
-    colnames(db) = c('DATE', 'CLOSE', 'VOLUME', 'RIC')
-    setDT(db)
+    data.table::setDT(dts)
+    rows_count = nrow(dts)
 
-    db[, DATE := substr(DATE, 1, 10)]
-
-    colnames(db) = c('DATE', 'VALUE', 'VOLUME', 'RIC')
-    db[, VALUE := as.numeric(VALUE)]
-    db[, VOLUME := as.numeric(VOLUME)]
-    setcolorder(db, c('DATE', 'RIC', 'VALUE', 'VOLUME'))
-
-    # Order data
-    data.table::setorderv(db, cols = c('DATE'), order = 1L)
-    colnames(db) = tolower(names(db))
-
-    # Print retrieval message
-    rows_count = nrow(db)
     print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
 
-  }
+      return(dts)
 
-  return(db)
+  } else if(isFALSE(legacy)) {
+
+    start_date = paste0(from_date, 'T00:00:00')
+    end_date = paste0(to_date, 'T00:00:00')
+
+    # Download Data
+    db = get_timeseries(
+      rics = list(rics),
+      fields = list('TIMESTAMP', 'CLOSE', 'VOLUME'),
+      start_date = start_date,
+      end_date = end_date,
+      interval = "daily"
+    )
+
+    if (is.null(db) || nrow(db) == 0 || all(is.na(db[[1]]))) {
+      warning(sprintf("No valid data found for RIC: %s", rics))
+      db = data.table(date = NA_character_, ric = rics, value = NA_real_, volume = NA_real_)
+      print_retrieval_message(rics = rics, from_date = 'NO DATA', to_date = 'NO DATA', nrows = 'NO DATA')
+    } else {
+
+      # Rename and process columns
+      colnames(db) = c('DATE', 'CLOSE', 'VOLUME', 'RIC')
+      setDT(db)
+
+      db[, DATE := substr(DATE, 1, 10)]
+
+      colnames(db) = c('DATE', 'VALUE', 'VOLUME', 'RIC')
+      db[, VALUE := as.numeric(VALUE)]
+      db[, VOLUME := as.numeric(VOLUME)]
+      setcolorder(db, c('DATE', 'RIC', 'VALUE', 'VOLUME'))
+
+      # Order data
+      data.table::setorderv(db, cols = c('DATE'), order = 1L)
+      colnames(db) = tolower(names(db))
+
+      # Print retrieval message
+      rows_count = nrow(db)
+      print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
+
+    }
+
+    return(db)
+
+  }
 
 }
