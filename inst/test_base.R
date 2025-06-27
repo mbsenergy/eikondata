@@ -73,21 +73,21 @@ cat(blue$bold("\nRunning tests for lowlevel()...\n"))
 cat("\nTest 1: Retrieve Daily Historical Market Data\n")
 daily_data <- get_rics_d(rics = "TTFDA", from_date = "2020-01-01", to_date = "2023-01-01")
 print(daily_data)
-fwrite(daily_data, 'daily_data.csv')
+# fwrite(daily_data, 'daily_data.csv')
 
 
 # Test 2: Retrieve Hourly Time Series Data
 cat("\nTest 2: Retrieve Hourly Time Series Data\n")
 hourly_data <- get_rics_h(rics = "HEEGRAUCH", from_date = "2025-01-01", to_date = "2025-01-03")
 print(head(hourly_data))
-fwrite(hourly_data, 'hourly_data.csv')
+# fwrite(hourly_data, 'hourly_data.csv')
 
 
 # Test 3: Retrieve Forward Market Data
 cat("\nTest 3: Retrieve Forward Market Data\n")
 forward_data <- get_rics_f(rics = "FDBMJ5", from_date = "2024-01-01", to_date = "2025-12-31")
 print(forward_data)
-fwrite(forward_data, 'forward_data.csv')
+# fwrite(forward_data, 'forward_data.csv')
 
 
 

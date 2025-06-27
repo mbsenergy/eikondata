@@ -44,5 +44,5 @@ r_forward_data <- get_rics_f(rics = "F7BMN5", from_date = "2024-01-01", to_date 
 print(r_forward_data)
 
 
-forward_data <- get_rics_f(rics = "TFMBYZ7^1", from_date = "2014-01-01", to_date = "2025-12-31")
+forward_data <- get_rics_f(rics = "FDBMF4^2", from_date = "2014-01-01", to_date = "2025-12-31")
 print(forward_data)
