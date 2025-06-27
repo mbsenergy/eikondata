@@ -143,11 +143,21 @@ retrieve_cont = function(list_continuation, start_train, end_train, cont = 'c1',
 
     data.table::setDT(dts)
     dts[, DATE := as.Date(DATE)]
+    dts[, VALUE := as.numeric(VALUE)]
+    dts[, VOLUME := as.numeric(VOLUME)]
+
     rows_count = nrow(dts)
 
     print_retrieval_message(rics = unique(dts$RIC), from_date = min(dts$DATE), to_date = max(dts$DATE), nrows = rows_count)
 
-    return(dts)
+    dt_cont = merge(
+      melt(list_cont_codes, id.vars = "COMMODITY", variable.name = "TYPE", value.name = "RIC"),
+      dts,
+      by = "RIC",
+      all.y = TRUE
+    )
+
+    return(dt_cont)
 
   } else if(isTRUE(legacy)) {
 
