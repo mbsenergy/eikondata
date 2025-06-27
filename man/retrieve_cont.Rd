@@ -4,7 +4,13 @@
 \alias{retrieve_cont}
 \title{Retrieve Historical Continuation RICs from Eikon}
 \usage{
-retrieve_cont(list_continuation, start_train, end_train, cont = "c1")
+retrieve_cont(
+  list_continuation,
+  start_train,
+  end_train,
+  cont = "c1",
+  legacy = FALSE
+)
 }
 \arguments{
 \item{list_continuation}{A character vector of basket commodities to include.}
@@ -14,6 +20,8 @@ retrieve_cont(list_continuation, start_train, end_train, cont = "c1")
 \item{end_train}{End date in 'YYYY-MM-DD' format.}
 
 \item{cont}{c1 or c2.}
+
+\item{legacy}{boolean to use python package (TRUE) or R}
 }
 \value{
 A data.table containing daily historical close and volume data for each continuation RIC with metadata.

@@ -113,3 +113,15 @@ lst_rics_pwr = eikondata::generate_rics_pwr('Italy', time_range = time_range)
 
 spot_fwd_data = eikondata::retrieve_fwd(ric = lst_rics_pwr, from_date = '2024-01-01', to_date = '2025-12-31')
 print(head(spot_fwd_data))
+
+
+
+
+# Test 4: Retrieve Continuation Historical Market Data
+cat("\nTest 3: Retrieve Cont Data\n")
+start_train = '2024-04-21'
+end_train = '2025-04-21'
+
+commodity_main = 'Italy'
+commodity_basket = c('Germany', 'C02', 'TTF')
+list_continuation = c(commodity_main, commodity_basket)

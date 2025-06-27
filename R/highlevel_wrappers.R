@@ -119,20 +119,38 @@ retrieve_fwd = function(ric, from_date, to_date) {
 #' @param start_train Start date in 'YYYY-MM-DD' format.
 #' @param end_train End date in 'YYYY-MM-DD' format.
 #' @param cont c1 or c2.
+#' @param legacy boolean to use python package (TRUE) or R
 #'
 #' @return A data.table containing daily historical close and volume data for each continuation RIC with metadata.
 #' @export
 #'
 #' @import data.table
-retrieve_cont = function(list_continuation, start_train, end_train, cont = 'c1') {
+retrieve_cont = function(list_continuation, start_train, end_train, cont = 'c1', legacy = FALSE) {
 
-  # Set Eikon API config
-  # Filter continuation RICs by commodity
   list_cont_codes = eikondata::products_continuation[
     COMMODITY %in% list_continuation
   ]
 
-  # Fetch time series per continuation RIC
+  if (nrow(list_cont_codes) == 0L) {
+    stop("No matching continuation codes for selected commodities.")
+  }
+
+  if(isFALSE(legacy)) {
+
+    flux = load_flux_module()
+
+    dts = flux$retrieve_cont(list_cont_codes = list_cont_codes, start_date = start_train, end_date = end_train, cont = cont)
+
+    data.table::setDT(dts)
+    dts[, DATE := as.Date(DATE)]
+    rows_count = nrow(dts)
+
+    print_retrieval_message(rics = unique(dts$RIC), from_date = min(dts$DATE), to_date = max(dts$DATE), nrows = rows_count)
+
+    return(dts)
+
+  } else if(isTRUE(legacy)) {
+
   if(cont == 'c1') {cond_codes = list_cont_codes$c1} else {cond_codes = list_cont_codes$c2}
 
   list_cont = lapply(cond_codes, function(x) {
@@ -168,10 +186,13 @@ retrieve_cont = function(list_continuation, start_train, end_train, cont = 'c1')
     by = "RIC",
     all.y = TRUE
   )
+  rows_count = nrow(dt_cont)
 
-  print_retrieval_done(message = 'Continuation retrieval finished.')
+  print_retrieval_message(rics = unique(dt_cont$RIC), from_date = min(dt_cont$DATE), to_date = max(dt_cont$DATE), nrows = rows_count)
 
   return(dt_cont)
+
+  }
 
 }
 

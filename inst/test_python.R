@@ -46,3 +46,14 @@ print(r_forward_data)
 
 forward_data <- get_rics_f(rics = "FDBMF4^2", from_date = "2014-01-01", to_date = "2025-12-31")
 print(forward_data)
+
+
+
+
+# Continuation -----------------------------------------------------------
+commodity_basket = c('Germany', 'C02', 'TTF')
+cont_data = retrieve_cont(list_continuation = commodity_basket, start_train = '2024-04-21', end_train = '2025-04-21', cont = 'c1', legacy = FALSE)
+print(cont_data)
+
+r_cont_data = retrieve_cont(list_continuation = commodity_basket, start_train = '2024-04-21', end_train = '2025-04-21', cont = 'c1', legacy = TRUE)
+print(r_cont_data)
