@@ -157,6 +157,8 @@ retrieve_cont = function(list_continuation, start_train, end_train, cont = 'c1',
       all.y = TRUE
     )
 
+    dt_cont = dt_cont[!is.na(VALUE)]
+
     return(dt_cont)
 
   } else if(isTRUE(legacy)) {
