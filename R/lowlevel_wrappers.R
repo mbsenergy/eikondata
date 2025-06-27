@@ -50,7 +50,7 @@ get_rics_d = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 
     return(dts)
 
-  } else if(isFALSE(legacy)) {
+  } else if(isTRUE(legacy)) {
 
   data_fields = c("TIMESTAMP", "CLOSE", "VOLUME")
   interval_field = 'daily'
@@ -150,7 +150,7 @@ get_rics_h = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 
     return(dts)
 
-  } else if(isFALSE(legacy)) {
+  } else if(isTRUE(legacy)) {
 
   rics_id_24 = c('01','02','03','04','05','06','07','08','09','10','11','12',
                  '13','14','15','16','17','18','19','20','21','22','23','24')
@@ -261,7 +261,7 @@ get_rics_f = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 
       return(dts)
 
-  } else if(isFALSE(legacy)) {
+  } else if(isTRUE(legacy)) {
 
     start_date = paste0(from_date, 'T00:00:00')
     end_date = paste0(to_date, 'T00:00:00')
