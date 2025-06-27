@@ -6,7 +6,7 @@
 #' @param rics A character string representing the RIC (identifier) for which historical data is to be retrieved.
 #' @param from_date A Date object or character string specifying the start date for data retrieval. Defaults to 10 years before the current date.
 #' @param to_date A Date object or character string specifying the end date for data retrieval. Defaults to the current date.
-#'
+#' @param legacy boolean to use python package (TRUE) or R
 #' @return A `data.table` containing the historical data for the specified RIC, with the following columns:
 #' \itemize{
 #'   \item \code{date} - The date of the observation (YYYY-MM-DD).
@@ -34,7 +34,23 @@
 #'
 #' @import data.table
 #' @export
-get_rics_d = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.Date()) {
+get_rics_d = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.Date(), legacy = FALSE) {
+
+  if(isFALSE(legacy)) {
+
+    flux = load_flux_module()
+
+    dts = flux$get_rics_d(rics = rics, from_date = from_date, to_date = to_date)
+
+    data.table::setDT(dts)
+    dts[, date := as.Date(date)]
+    rows_count = nrow(dts)
+
+    print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
+
+    return(dts)
+
+  } else if(isFALSE(legacy)) {
 
   data_fields = c("TIMESTAMP", "CLOSE", "VOLUME")
   interval_field = 'daily'
@@ -76,6 +92,9 @@ get_rics_d = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
   print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
 
   return(db)
+
+  }
+
 }
 
 
@@ -89,6 +108,7 @@ get_rics_d = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 #' @param from_date A character or Date object representing the start date for data retrieval (default: 10 years ago).
 #' @param to_date A character or Date object representing the end date for data retrieval (default: today).
 #' @param interval A character string representing the data frequency. Defaults to `"daily"`, but is internally ignored for hourly data.
+#' @param legacy boolean to use python package (TRUE) or R
 #' @param sleep A numeric value specifying the time (in seconds) to wait between API calls (default: 0).
 #'
 #' @return A `data.table` containing the 24-hour data for the specified RIC, with the following columns:
@@ -114,7 +134,23 @@ get_rics_d = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 #'
 #' @import data.table
 #' @export
-get_rics_h = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.Date()) {
+get_rics_h = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.Date(), legacy = FALSE) {
+
+  if(isFALSE(legacy)) {
+
+    flux = load_flux_module()
+
+    dts = flux$get_rics_h(rics = rics, from_date = from_date, to_date = to_date)
+
+    data.table::setDT(dts)
+    dts[, date := as.Date(date)]
+    rows_count = nrow(dts)
+
+    print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
+
+    return(dts)
+
+  } else if(isFALSE(legacy)) {
 
   rics_id_24 = c('01','02','03','04','05','06','07','08','09','10','11','12',
                  '13','14','15','16','17','18','19','20','21','22','23','24')
@@ -166,6 +202,9 @@ get_rics_h = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
   print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
 
   return(db_24h)
+
+  }
+
 }
 
 
@@ -177,6 +216,7 @@ get_rics_h = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 #' @param rics A character string representing the RIC (identifier) whose forward market data is to be retrieved.
 #' @param from_date A Date object or character string representing the start date for data retrieval. Defaults to 10 years before the current date.
 #' @param to_date A Date object or character string representing the end date for data retrieval. Defaults to the current date.
+#' @param legacy boolean to use python package (TRUE) or R
 #'
 #' @return A `data.table` containing the forward market data, with the following columns:
 #' \itemize{
@@ -211,9 +251,10 @@ get_rics_f = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 
     flux = load_flux_module()
 
-    dts = flux$get_rics_d(rics = rics, from_date = from_date, to_date = to_date)
+    dts = flux$get_rics_f(rics = rics, from_date = from_date, to_date = to_date)
 
     data.table::setDT(dts)
+    dts[, date := as.Date(date)]
     rows_count = nrow(dts)
 
     print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)

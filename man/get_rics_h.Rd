@@ -4,7 +4,12 @@
 \alias{get_rics_h}
 \title{Retrieve Hourly Time Series Data for a Given RIC}
 \usage{
-get_rics_h(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.Date())
+get_rics_h(
+  rics,
+  from_date = Sys.Date() - (365 * 10),
+  to_date = Sys.Date(),
+  legacy = FALSE
+)
 }
 \arguments{
 \item{rics}{A character string representing the base RIC (without the hour suffix) for which the data is to be retrieved.}
@@ -12,6 +17,8 @@ get_rics_h(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.Date())
 \item{from_date}{A character or Date object representing the start date for data retrieval (default: 10 years ago).}
 
 \item{to_date}{A character or Date object representing the end date for data retrieval (default: today).}
+
+\item{legacy}{boolean to use python package (TRUE) or R}
 
 \item{interval}{A character string representing the data frequency. Defaults to `"daily"`, but is internally ignored for hourly data.}
 

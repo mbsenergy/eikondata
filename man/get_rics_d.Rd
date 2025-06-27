@@ -4,7 +4,12 @@
 \alias{get_rics_d}
 \title{Retrieve Daily Historical Market Data for a Given RIC}
 \usage{
-get_rics_d(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.Date())
+get_rics_d(
+  rics,
+  from_date = Sys.Date() - (365 * 10),
+  to_date = Sys.Date(),
+  legacy = FALSE
+)
 }
 \arguments{
 \item{rics}{A character string representing the RIC (identifier) for which historical data is to be retrieved.}
@@ -12,6 +17,8 @@ get_rics_d(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.Date())
 \item{from_date}{A Date object or character string specifying the start date for data retrieval. Defaults to 10 years before the current date.}
 
 \item{to_date}{A Date object or character string specifying the end date for data retrieval. Defaults to the current date.}
+
+\item{legacy}{boolean to use python package (TRUE) or R}
 }
 \value{
 A `data.table` containing the historical data for the specified RIC, with the following columns:

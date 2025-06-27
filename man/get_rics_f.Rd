@@ -17,6 +17,8 @@ get_rics_f(
 \item{from_date}{A Date object or character string representing the start date for data retrieval. Defaults to 10 years before the current date.}
 
 \item{to_date}{A Date object or character string representing the end date for data retrieval. Defaults to the current date.}
+
+\item{legacy}{boolean to use python package (TRUE) or R}
 }
 \value{
 A `data.table` containing the forward market data, with the following columns:
