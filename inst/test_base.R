@@ -87,6 +87,8 @@ print(head(hourly_data))
 cat("\nTest 3: Retrieve Forward Market Data\n")
 forward_data <- get_rics_f(rics = "FDBMJ5", from_date = "2024-01-01", to_date = "2025-12-31")
 print(forward_data)
+forward_data <- get_rics_f(rics = "FDBMJ5^2", from_date = "2024-01-01", to_date = "2025-12-31")
+print(forward_data)
 # fwrite(forward_data, 'forward_data.csv')
 
 
@@ -109,19 +111,7 @@ time_range = as.numeric(data.table::year(as.Date('2024-01-01'))):as.numeric(data
 calendar = eikondata::calendar_holidays
 calendar[,`:=` (year = as.character(data.table::year(date)), quarter = as.character(data.table::quarter(date)), month = as.character(data.table::month(date)))]
 
-lst_rics_pwr = eikondata::generate_rics_pwr('Italy', time_range = time_range)
+lst_rics_pwr = eikondata::generate_rics_pwr('Greece', time_range = time_range)
 
-spot_fwd_data = eikondata::retrieve_fwd(ric = lst_rics_pwr, from_date = '2024-01-01', to_date = '2025-12-31')
-print(head(spot_fwd_data))
-
-
-
-
-# Test 4: Retrieve Continuation Historical Market Data
-cat("\nTest 3: Retrieve Cont Data\n")
-start_train = '2024-04-21'
-end_train = '2025-04-21'
-
-commodity_main = 'Italy'
-commodity_basket = c('Germany', 'C02', 'TTF')
-list_continuation = c(commodity_main, commodity_basket)
+fwd_pwr_data = eikondata::retrieve_fwd(ric = lst_rics_pwr, from_date = '2024-01-01', to_date = '2025-12-31')
+print(head(fwd_pwr_data))

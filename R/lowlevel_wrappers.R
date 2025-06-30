@@ -40,15 +40,31 @@ get_rics_d = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 
     flux = load_flux_module()
 
-    dts = flux$get_rics_d(rics = rics, from_date = from_date, to_date = to_date)
+    dts = tryCatch(
+      flux$get_rics_d(rics = rics, from_date = from_date, to_date = to_date),
+      error = function(e) {
+        message(sprintf("[SERVER] call failed: %s", e$message))
+        return(NULL)
+      }
+    )
 
-    data.table::setDT(dts)
-    dts[, date := as.Date(date)]
-    rows_count = nrow(dts)
+    if(!is.null(dts)) {
 
-    print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
+      dts = jsonlite::fromJSON(dts)
 
-    return(dts)
+      data.table::setDT(dts)
+      dts[, date := as.Date(date)]
+      rows_count = nrow(dts)
+
+      print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
+
+      return(dts)
+
+  } else {
+
+    return(NULL)
+
+  }
 
   } else if(isTRUE(legacy)) {
 
@@ -140,15 +156,31 @@ get_rics_h = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 
     flux = load_flux_module()
 
-    dts = flux$get_rics_h(rics = rics, from_date = from_date, to_date = to_date)
+    dts = tryCatch(
+      flux$get_rics_h(rics = rics, from_date = from_date, to_date = to_date),
+      error = function(e) {
+        message(sprintf("[SERVER] call failed: %s", e$message))
+        return(NULL)
+      }
+    )
 
-    data.table::setDT(dts)
-    dts[, date := as.Date(date)]
-    rows_count = nrow(dts)
+    if(!is.null(dts)) {
 
-    print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
+      dts = jsonlite::fromJSON(dts)
 
-    return(dts)
+      data.table::setDT(dts)
+      dts[, date := as.Date(date)]
+      rows_count = nrow(dts)
+
+      print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
+
+      return(dts)
+
+    } else {
+
+      return(NULL)
+
+    }
 
   } else if(isTRUE(legacy)) {
 
@@ -251,15 +283,33 @@ get_rics_f = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 
     flux = load_flux_module()
 
-    dts = flux$get_rics_f(rics = rics, from_date = from_date, to_date = to_date)
+    dts = tryCatch(
+      flux$get_rics_f(rics = rics, from_date = from_date, to_date = to_date),
+      error = function(e) {
+        message(sprintf("[SERVER] call failed: %s", e$message))
+        return(NULL)
+      }
+    )
 
-    data.table::setDT(dts)
-    dts[, date := as.Date(date)]
-    rows_count = nrow(dts)
 
-    print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
+    if(!is.null(dts)) {
+
+      dts = jsonlite::fromJSON(dts)
+
+      data.table::setDT(dts)
+      dts[, date := as.Date(date)]
+      rows_count = nrow(dts)
+
+      print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
 
       return(dts)
+
+    } else {
+
+      return(NULL)
+
+    }
+
 
   } else if(isTRUE(legacy)) {
 
