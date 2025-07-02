@@ -139,27 +139,42 @@ retrieve_cont = function(list_continuation, start_train, end_train, cont = 'c1',
 
     flux = load_flux_module()
 
-    dts = flux$retrieve_cont(list_cont_codes = list_cont_codes, start_date = start_train, end_date = end_train, cont = cont)
-
-    data.table::setDT(dts)
-    dts[, DATE := as.Date(DATE)]
-    dts[, VALUE := as.numeric(VALUE)]
-    dts[, VOLUME := as.numeric(VOLUME)]
-
-    rows_count = nrow(dts)
-
-    print_retrieval_message(rics = unique(dts$RIC), from_date = min(dts$DATE), to_date = max(dts$DATE), nrows = rows_count)
-
-    dt_cont = merge(
-      melt(list_cont_codes, id.vars = "COMMODITY", variable.name = "TYPE", value.name = "RIC"),
-      dts,
-      by = "RIC",
-      all.y = TRUE
+    dts = tryCatch(
+      flux$retrieve_cont(list_cont_codes = list_cont_codes, start_date = start_train, end_date = end_train, cont = cont),
+      error = function(e) {
+        message(sprintf("[SERVER] call failed: %s", e$message))
+        return(NULL)
+      }
     )
 
-    dt_cont = dt_cont[!is.na(VALUE)]
+    if(!is.null(dts)) {
 
-    return(dt_cont)
+      dts = jsonlite::fromJSON(dts)
+
+      data.table::setDT(dts)
+      dts[, DATE := as.Date(DATE)]
+      dts[, VALUE := as.numeric(VALUE)]
+      dts[, VOLUME := as.numeric(VOLUME)]
+
+      dt_cont = merge(
+        melt(list_cont_codes, id.vars = "COMMODITY", variable.name = "TYPE", value.name = "RIC"),
+        dts,
+        by = "RIC",
+        all.y = TRUE
+      )
+
+      dt_cont = dt_cont[!is.na(VALUE)]
+
+      rows_count = nrow(dts)
+      print_retrieval_message(rics = 'Continuation', from_date = start_train, to_date = end_train, nrows = rows_count)
+
+      return(dt_cont)
+
+    } else {
+
+      return(NULL)
+
+    }
 
   } else if(isTRUE(legacy)) {
 

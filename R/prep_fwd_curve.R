@@ -134,7 +134,7 @@ prep_fwd_curve = function(DT, list_rics, type = 'PWR', start_date = Sys.Date() -
 
     forward_quotes_month_BL = eikondata::reuters_months[forward_quotes_BL[RIC %like% string_pwr_month_BL], on = 'code']
     forward_quotes_quarter_BL = eikondata::reuters_quarters_pwr[forward_quotes_BL[RIC %like% string_pwr_quarter_BL], on = 'code']
-    forward_quotes_cal_BL = eikondata::reuters_quarters_pwr[forward_quotes_BL[RIC %like% string_pwr_cal_BL], on = 'code'][, year := paste0(ifelse(substr(year(Sys.Date()), 4, 4) > substr(RIC, 6, 6), paste0(substr(year(Sys.Date()), 1, 2), "3"), substr(year(Sys.Date()), 1, 3)), substr(RIC, 6, 6))][, quarter := NULL]
+    forward_quotes_cal_BL = eikondata::reuters_quarters_pwr[forward_quotes_BL[RIC %like% string_pwr_cal_BL], on = 'code'][, quarter := NULL]
     forward_quotes_cal_BL = forward_quotes_cal_BL[
       , if (.N == 1) .SD else .SD[!grepl("\\^", RIC)],
       by = year
@@ -180,7 +180,7 @@ prep_fwd_curve = function(DT, list_rics, type = 'PWR', start_date = Sys.Date() -
 
     forward_quotes_month_PL = eikondata::reuters_months[forward_quotes_PL[RIC %like% string_pwr_month_PL], on = 'code']
     forward_quotes_quarter_PL = eikondata::reuters_quarters_pwr[forward_quotes_PL[RIC %like% string_pwr_quarter_PL], on = 'code']
-    forward_quotes_cal_PL = eikondata::reuters_quarters_pwr[forward_quotes_PL[RIC %like% string_pwr_cal_PL], on = 'code'][, year := paste0(ifelse(substr(year(Sys.Date()), 4, 4) > substr(RIC, 6, 6), paste0(substr(year(Sys.Date()), 1, 2), "3"), substr(year(Sys.Date()), 1, 3)), substr(RIC, 6, 6))][, quarter := NULL]
+    forward_quotes_cal_PL = eikondata::reuters_quarters_pwr[forward_quotes_PL[RIC %like% string_pwr_cal_PL], on = 'code'][, quarter := NULL]
 
     setcolorder(forward_quotes_cal_PL, c("year", names(forward_quotes_cal_PL)[1:(ncol(forward_quotes_cal_PL) - 1)]))
 
