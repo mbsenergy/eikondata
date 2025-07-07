@@ -1,9 +1,22 @@
 devtools::load_all()
-install_flux_lseg()
+# install_flux_lseg()
 
-set_proxy_port(9000L)
-PLEASE_INSERT_REUTERS_KEY = Sys.getenv('REUTERS_KEY')
-set_app_id(as.character(PLEASE_INSERT_REUTERS_KEY[1]))
+# set_proxy_port(9000L)
+# PLEASE_INSERT_REUTERS_KEY = Sys.getenv('REUTERS_KEY')
+# set_app_id(as.character(PLEASE_INSERT_REUTERS_KEY[1]))
+
+
+.flux_env = new.env(parent = emptyenv())
+
+load_flux_module = function() {
+  if (!exists("flux", envir = .flux_env)) {
+    reticulate::use_virtualenv("fluxenv", required = TRUE)
+    .flux_env$flux = reticulate::import("fluxlseg")
+    .flux_env$flux$open_session(LSEG_KEY='0df86b690b2c4ae2bf245680dbbfcc86bb041dc9')
+  }
+  .flux_env$flux
+}
+
 
 # reticulate::use_virtualenv("fluxenv", required = TRUE)
 # flux = reticulate::import("fluxlseg")
