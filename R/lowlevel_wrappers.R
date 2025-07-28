@@ -34,10 +34,13 @@
 #'
 #' @import data.table
 #' @export
-get_rics_d = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.Date(), legacy = FALSE) {
-
-  if(isFALSE(legacy)) {
-
+get_rics_d = function(
+  rics,
+  from_date = Sys.Date() - (365 * 10),
+  to_date = Sys.Date(),
+  legacy = getOption("eikondata.legacy", FALSE)
+) {
+  if (isFALSE(legacy)) {
     flux = load_flux_module()
 
     dts = tryCatch(
@@ -48,71 +51,72 @@ get_rics_d = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
       }
     )
 
-    if(!is.null(dts)) {
-
+    if (!is.null(dts)) {
       dts = jsonlite::fromJSON(dts)
 
       data.table::setDT(dts)
       dts[, date := as.Date(date)]
       rows_count = nrow(dts)
 
-      print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
+      print_retrieval_message(
+        rics = rics,
+        from_date = from_date,
+        to_date = to_date,
+        nrows = rows_count
+      )
 
       return(dts)
+    } else {
+      return(NULL)
+    }
+  } else if (isTRUE(legacy)) {
+    data_fields = c("TIMESTAMP", "CLOSE", "VOLUME")
+    interval_field = 'daily'
+    start_date = paste0(from_date, 'T00:00:00')
+    end_date = paste0(to_date, 'T00:00:00')
 
-  } else {
+    # Download Data
+    db = lapply(rics, function(x) {
+      result <- get_timeseries(
+        rics = x,
+        fields = data_fields,
+        start_date = start_date,
+        end_date = end_date,
+        interval = interval_field
+      )
+      # print(result)
+      return(result)
+    })
 
-    return(NULL)
+    db = rbindlist(db, use.names = TRUE, fill = TRUE)
 
-  }
+    # Rename and process columns
+    colnames(db) = c('DATE', 'CLOSE', 'VOLUME', 'RIC')
+    setDT(db)
 
-  } else if(isTRUE(legacy)) {
+    db[, DATE := substr(DATE, 1, 10)]
 
-  data_fields = c("TIMESTAMP", "CLOSE", "VOLUME")
-  interval_field = 'daily'
-  start_date = paste0(from_date, 'T00:00:00')
-  end_date = paste0(to_date, 'T00:00:00')
+    colnames(db) = c('DATE', 'VALUE', 'VOLUME', 'RIC')
+    db[, VALUE := as.numeric(VALUE)]
+    db[, VOLUME := as.numeric(VOLUME)]
+    setcolorder(db, c('DATE', 'RIC', 'VALUE', 'VOLUME'))
 
-  # Download Data
-  db = lapply(rics, function(x) {
-    result <- get_timeseries(
-      rics = x,
-      fields = data_fields,
-      start_date = start_date,
-      end_date = end_date,
-      interval = interval_field
+    # Order data
+    data.table::setorderv(db, cols = c('DATE'), order = 1L)
+    colnames(db) = tolower(names(db))
+
+    # Print retrieval message
+    rows_count = nrow(db)
+    print_retrieval_message(
+      rics = rics,
+      from_date = from_date,
+      to_date = to_date,
+      nrows = rows_count
     )
-    # print(result)
-    return(result)
-  })
 
-  db = rbindlist(db, use.names = TRUE, fill = TRUE)
-
-  # Rename and process columns
-  colnames(db) = c('DATE', 'CLOSE','VOLUME', 'RIC')
-  setDT(db)
-
-  db[, DATE := substr(DATE, 1, 10)]
-
-  colnames(db) = c('DATE', 'VALUE', 'VOLUME', 'RIC')
-  db[, VALUE := as.numeric(VALUE)]
-  db[, VOLUME := as.numeric(VOLUME)]
-  setcolorder(db, c('DATE', 'RIC', 'VALUE', 'VOLUME'))
-
-  # Order data
-  data.table::setorderv(db, cols = c('DATE'), order = 1L)
-  colnames(db) = tolower(names(db))
-
-  # Print retrieval message
-  rows_count = nrow(db)
-  print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
-
-  return(db)
-
+    return(db)
   }
-
 }
-
 
 
 #' Retrieve Hourly Time Series Data for a Given RIC
@@ -150,10 +154,13 @@ get_rics_d = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 #'
 #' @import data.table
 #' @export
-get_rics_h = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.Date(), legacy = FALSE) {
-
-  if(isFALSE(legacy)) {
-
+get_rics_h = function(
+  rics,
+  from_date = Sys.Date() - (365 * 10),
+  to_date = Sys.Date(),
+  legacy = getOption("eikondata.legacy", FALSE)
+) {
+  if (isFALSE(legacy)) {
     flux = load_flux_module()
 
     dts = tryCatch(
@@ -164,79 +171,105 @@ get_rics_h = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
       }
     )
 
-    if(!is.null(dts)) {
-
+    if (!is.null(dts)) {
       dts = jsonlite::fromJSON(dts)
 
       data.table::setDT(dts)
       dts[, date := as.Date(date)]
       rows_count = nrow(dts)
 
-      print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
+      print_retrieval_message(
+        rics = rics,
+        from_date = from_date,
+        to_date = to_date,
+        nrows = rows_count
+      )
 
       return(dts)
-
     } else {
-
       return(NULL)
+    }
+  } else if (isTRUE(legacy)) {
+    rics_id_24 = c(
+      '01',
+      '02',
+      '03',
+      '04',
+      '05',
+      '06',
+      '07',
+      '08',
+      '09',
+      '10',
+      '11',
+      '12',
+      '13',
+      '14',
+      '15',
+      '16',
+      '17',
+      '18',
+      '19',
+      '20',
+      '21',
+      '22',
+      '23',
+      '24'
+    )
+    rics_id_h = paste0(rics, rics_id_24)
 
+    # Format dates
+    data_fields = c("TIMESTAMP", "CLOSE", "VOLUME")
+    interval_field = 'daily'
+    start_date = paste0(from_date, 'T00:00:00')
+    end_date = paste0(to_date, 'T00:00:00')
+
+    # Fetch data
+    db = lapply(rics_id_h, function(x) {
+      result <- get_timeseries(
+        rics = x,
+        fields = data_fields,
+        start_date = start_date,
+        end_date = end_date,
+        interval = interval_field
+      )
+      # print(result)
+      return(result)
+    })
+
+    # Combine results
+    db_24h = rbindlist(db, use.names = TRUE, fill = TRUE)
+    colnames(db_24h) = c('DATE', 'VALUE', 'VOLUME', 'RIC_H')
+
+    db_24h[, DATE := substr(DATE, 1, 10)]
+    db_24h[, HOUR := as.integer(substr(RIC_H, nchar(RIC_H) - 1, nchar(RIC_H)))]
+    db_24h[, RIC := rics]
+    db_24h[, RIC_H := NULL]
+    db_24h[, VALUE := as.numeric(VALUE)]
+    db_24h[, VOLUME := as.numeric(VOLUME)]
+
+    setcolorder(db_24h, c('DATE', 'HOUR', 'RIC', 'VALUE', 'VOLUME'))
+
+    # Order data
+    data.table::setorderv(db_24h, cols = c('DATE', 'HOUR'), order = 1L)
+    colnames(db_24h) = tolower(names(db_24h))
+
+    # Check if all 24 hours are present
+    if (uniqueN(db_24h$hour) < 24) {
+      warning("Not all 24 hours are present in the data.")
     }
 
-  } else if(isTRUE(legacy)) {
-
-  rics_id_24 = c('01','02','03','04','05','06','07','08','09','10','11','12',
-                 '13','14','15','16','17','18','19','20','21','22','23','24')
-  rics_id_h = paste0(rics, rics_id_24)
-
-  # Format dates
-  data_fields = c("TIMESTAMP", "CLOSE", "VOLUME")
-  interval_field = 'daily'
-  start_date = paste0(from_date, 'T00:00:00')
-  end_date = paste0(to_date, 'T00:00:00')
-
-  # Fetch data
-  db = lapply(rics_id_h, function(x) {
-    result <- get_timeseries(
-      rics = x,
-      fields = data_fields,
-      start_date = start_date,
-      end_date = end_date,
-      interval = interval_field
+    # Print retrieval message
+    rows_count = nrow(db_24h)
+    print_retrieval_message(
+      rics = rics,
+      from_date = from_date,
+      to_date = to_date,
+      nrows = rows_count
     )
-    # print(result)
-    return(result)
-  })
 
-  # Combine results
-  db_24h = rbindlist(db, use.names = TRUE, fill = TRUE)
-  colnames(db_24h) = c('DATE', 'VALUE', 'VOLUME', 'RIC_H')
-
-  db_24h[, DATE := substr(DATE, 1, 10)]
-  db_24h[, HOUR := as.integer(substr(RIC_H, nchar(RIC_H) - 1, nchar(RIC_H)))]
-  db_24h[, RIC := rics]
-  db_24h[, RIC_H := NULL]
-  db_24h[, VALUE := as.numeric(VALUE)]
-  db_24h[, VOLUME := as.numeric(VOLUME)]
-
-  setcolorder(db_24h, c('DATE', 'HOUR', 'RIC', 'VALUE', 'VOLUME'))
-
-  # Order data
-  data.table::setorderv(db_24h, cols = c('DATE','HOUR'), order = 1L)
-  colnames(db_24h) = tolower(names(db_24h))
-
-  # Check if all 24 hours are present
-  if (uniqueN(db_24h$hour) < 24) {
-    warning("Not all 24 hours are present in the data.")
+    return(db_24h)
   }
-
-  # Print retrieval message
-  rows_count = nrow(db_24h)
-  print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
-
-  return(db_24h)
-
-  }
-
 }
 
 
@@ -277,10 +310,13 @@ get_rics_h = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 #'
 #' @import data.table
 #' @export
-get_rics_f = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.Date(), legacy = FALSE) {
-
-  if(isFALSE(legacy)) {
-
+get_rics_f = function(
+  rics,
+  from_date = Sys.Date() - (365 * 10),
+  to_date = Sys.Date(),
+  legacy = getOption("eikondata.legacy", FALSE)
+) {
+  if (isFALSE(legacy)) {
     flux = load_flux_module()
 
     dts = tryCatch(
@@ -291,28 +327,25 @@ get_rics_f = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
       }
     )
 
-
-    if(!is.null(dts)) {
-
+    if (!is.null(dts)) {
       dts = jsonlite::fromJSON(dts)
 
       data.table::setDT(dts)
       dts[, date := as.Date(date)]
       rows_count = nrow(dts)
 
-      print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
+      print_retrieval_message(
+        rics = rics,
+        from_date = from_date,
+        to_date = to_date,
+        nrows = rows_count
+      )
 
       return(dts)
-
     } else {
-
       return(NULL)
-
     }
-
-
-  } else if(isTRUE(legacy)) {
-
+  } else if (isTRUE(legacy)) {
     start_date = paste0(from_date, 'T00:00:00')
     end_date = paste0(to_date, 'T00:00:00')
 
@@ -327,10 +360,19 @@ get_rics_f = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 
     if (is.null(db) || nrow(db) == 0 || all(is.na(db[[1]]))) {
       warning(sprintf("No valid data found for RIC: %s", rics))
-      db = data.table(date = NA_character_, ric = rics, value = NA_real_, volume = NA_real_)
-      print_retrieval_message(rics = rics, from_date = 'NO DATA', to_date = 'NO DATA', nrows = 'NO DATA')
+      db = data.table(
+        date = NA_character_,
+        ric = rics,
+        value = NA_real_,
+        volume = NA_real_
+      )
+      print_retrieval_message(
+        rics = rics,
+        from_date = 'NO DATA',
+        to_date = 'NO DATA',
+        nrows = 'NO DATA'
+      )
     } else {
-
       # Rename and process columns
       colnames(db) = c('DATE', 'CLOSE', 'VOLUME', 'RIC')
       setDT(db)
@@ -348,12 +390,14 @@ get_rics_f = function(rics, from_date = Sys.Date() - (365 * 10), to_date = Sys.D
 
       # Print retrieval message
       rows_count = nrow(db)
-      print_retrieval_message(rics = rics, from_date = from_date, to_date = to_date, nrows = rows_count)
-
+      print_retrieval_message(
+        rics = rics,
+        from_date = from_date,
+        to_date = to_date,
+        nrows = rows_count
+      )
     }
 
     return(db)
-
   }
-
 }

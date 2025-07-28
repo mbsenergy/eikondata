@@ -15,10 +15,13 @@
 #' @import data.table
 #' @export
 retrieve_spot = function(ric, from_date, to_date, type = 'PWR') {
-
-  if(type == 'GAS') {
-
-    rics_db = data.table::rbindlist(lapply(ric, eikondata::get_rics_d, from_date = from_date, to_date = to_date))
+  if (type == 'GAS') {
+    rics_db = data.table::rbindlist(lapply(
+      ric,
+      eikondata::get_rics_d,
+      from_date = from_date,
+      to_date = to_date
+    ))
     data.table::setDT(rics_db)
     rics_db = rics_db[, .(date = as.Date(date), value = value, RIC = ric)]
 
@@ -43,18 +46,30 @@ retrieve_spot = function(ric, from_date, to_date, type = 'PWR') {
     print_retrieval_done(message = 'Spot Gas retrieval finished.')
 
     return(history_gas_all_s)
-
-  } else if(type == 'PWR') {
-
-    rics_db = data.table::rbindlist(lapply(ric, eikondata::get_rics_h, from_date = from_date, to_date = to_date))
+  } else if (type == 'PWR') {
+    rics_db = data.table::rbindlist(lapply(
+      ric,
+      eikondata::get_rics_h,
+      from_date = from_date,
+      to_date = to_date
+    ))
     data.table::setDT(rics_db)
 
-    rics_db = rics_db[, .(date = as.Date(date), hour = hour, value = value, RIC = ric)]
+    rics_db = rics_db[, .(
+      date = as.Date(date),
+      hour = hour,
+      value = value,
+      RIC = ric
+    )]
 
     downloaded_spot = data.table::copy(rics_db)
 
     history_pwr_all_s = downloaded_spot[date >= from_date]
-    data.table::setorderv(history_pwr_all_s, cols =c('date','hour'), order = -1L)
+    data.table::setorderv(
+      history_pwr_all_s,
+      cols = c('date', 'hour'),
+      order = -1L
+    )
 
     history_pwr_all_s = history_pwr_all_s[date <= to_date]
 
@@ -68,9 +83,7 @@ retrieve_spot = function(ric, from_date, to_date, type = 'PWR') {
     print_retrieval_done(message = 'Spot Power retrieval finished.')
 
     return(history_pwr_all_s)
-
   }
-
 }
 
 
@@ -89,8 +102,12 @@ retrieve_spot = function(ric, from_date, to_date, type = 'PWR') {
 #' @import data.table
 #' @export
 retrieve_fwd = function(ric, from_date, to_date) {
-
-  rics_db = data.table::rbindlist(lapply(ric, eikondata::get_rics_f, from_date = from_date, to_date = to_date))
+  rics_db = data.table::rbindlist(lapply(
+    ric,
+    eikondata::get_rics_f,
+    from_date = from_date,
+    to_date = to_date
+  ))
   data.table::setDT(rics_db)
   rics_db = rics_db[, .(date = as.Date(date), value, RIC = ric)]
 
@@ -98,14 +115,14 @@ retrieve_fwd = function(ric, from_date, to_date) {
 
   # downloaded_RICS = refenergy::merge_rics(lst_rics)
   downloaded_fwd = downloaded_fwd[!(is.na(RIC)) & !(is.na(value))]
-  downloaded_fwd = downloaded_fwd[downloaded_fwd[, .I[date == max(date)], by = RIC]$V1]
+  downloaded_fwd = downloaded_fwd[
+    downloaded_fwd[, .I[date == max(date)], by = RIC]$V1
+  ]
 
   print_retrieval_done(message = 'FWD retrieval finished.')
 
   return(downloaded_fwd)
-
 }
-
 
 
 ## Continuation -------------------------------------------------------------------------------------
@@ -125,8 +142,13 @@ retrieve_fwd = function(ric, from_date, to_date) {
 #' @export
 #'
 #' @import data.table
-retrieve_cont = function(list_continuation, start_train, end_train, cont = 'c1', legacy = FALSE) {
-
+retrieve_cont = function(
+  list_continuation,
+  start_train,
+  end_train,
+  cont = 'c1',
+  legacy = getOption("eikondata.legacy", FALSE)
+) {
   list_cont_codes = eikondata::products_continuation[
     COMMODITY %in% list_continuation
   ]
@@ -135,20 +157,23 @@ retrieve_cont = function(list_continuation, start_train, end_train, cont = 'c1',
     stop("No matching continuation codes for selected commodities.")
   }
 
-  if(isFALSE(legacy)) {
-
+  if (isFALSE(legacy)) {
     flux = load_flux_module()
 
     dts = tryCatch(
-      flux$retrieve_cont(list_cont_codes = list_cont_codes, start_date = start_train, end_date = end_train, cont = cont),
+      flux$retrieve_cont(
+        list_cont_codes = list_cont_codes,
+        start_date = start_train,
+        end_date = end_train,
+        cont = cont
+      ),
       error = function(e) {
         message(sprintf("[SERVER] call failed: %s", e$message))
         return(NULL)
       }
     )
 
-    if(!is.null(dts)) {
-
+    if (!is.null(dts)) {
       dts = jsonlite::fromJSON(dts)
 
       data.table::setDT(dts)
@@ -157,7 +182,12 @@ retrieve_cont = function(list_continuation, start_train, end_train, cont = 'c1',
       dts[, VOLUME := as.numeric(VOLUME)]
 
       dt_cont = merge(
-        melt(list_cont_codes, id.vars = "COMMODITY", variable.name = "TYPE", value.name = "RIC"),
+        melt(
+          list_cont_codes,
+          id.vars = "COMMODITY",
+          variable.name = "TYPE",
+          value.name = "RIC"
+        ),
         dts,
         by = "RIC",
         all.y = TRUE
@@ -166,64 +196,86 @@ retrieve_cont = function(list_continuation, start_train, end_train, cont = 'c1',
       dt_cont = dt_cont[!is.na(VALUE)]
 
       rows_count = nrow(dts)
-      print_retrieval_message(rics = 'Continuation', from_date = start_train, to_date = end_train, nrows = rows_count)
+      print_retrieval_message(
+        rics = 'Continuation',
+        from_date = start_train,
+        to_date = end_train,
+        nrows = rows_count
+      )
 
       return(dt_cont)
-
     } else {
-
       return(NULL)
-
+    }
+  } else if (isTRUE(legacy)) {
+    if (cont == 'c1') {
+      cond_codes = list_cont_codes$c1
+    } else {
+      cond_codes = list_cont_codes$c2
     }
 
-  } else if(isTRUE(legacy)) {
-
-  if(cont == 'c1') {cond_codes = list_cont_codes$c1} else {cond_codes = list_cont_codes$c2}
-
-  list_cont = lapply(cond_codes, function(x) {
-    tryCatch({
-      DT = eikondata::get_timeseries(
-        rics = x,
-        fields = c("TIMESTAMP", "CLOSE", "VOLUME"),
-        start_date = paste0(start_train, "T00:00:00"),
-        end_date = paste0(end_train, "T00:00:00"),
-        interval = "daily"
+    list_cont = lapply(cond_codes, function(x) {
+      tryCatch(
+        {
+          DT = eikondata::get_timeseries(
+            rics = x,
+            fields = c("TIMESTAMP", "CLOSE", "VOLUME"),
+            start_date = paste0(start_train, "T00:00:00"),
+            end_date = paste0(end_train, "T00:00:00"),
+            interval = "daily"
+          )
+          print_retrieval_message(
+            rics = x,
+            from_date = start_train,
+            to_date = end_train,
+            nrows = nrow(DT)
+          )
+          setDT(DT)
+        },
+        error = function(e) {
+          message(sprintf(
+            "Failed to retrieve data for RIC: %s - %s",
+            x,
+            e$message
+          ))
+          return(NULL)
+        }
       )
-      print_retrieval_message(rics = x, from_date = start_train, to_date = end_train, nrows = nrow(DT))
-      setDT(DT)
-    }, error = function(e) {
-      message(sprintf("Failed to retrieve data for RIC: %s - %s", x, e$message))
-      return(NULL)
     })
-  })
 
-  # Combine results
-  dt_cont = rbindlist(list_cont, use.names = TRUE, fill = TRUE)
-  colnames(dt_cont) = c("DATE", "VALUE", "VOLUME", "RIC")
+    # Combine results
+    dt_cont = rbindlist(list_cont, use.names = TRUE, fill = TRUE)
+    colnames(dt_cont) = c("DATE", "VALUE", "VOLUME", "RIC")
 
-  # Clean and convert columns
-  dt_cont[, DATE := as.Date(sub("T.*", "", DATE))]
-  dt_cont[, VALUE := as.numeric(VALUE)]
-  dt_cont[, VOLUME := as.numeric(VOLUME)]
+    # Clean and convert columns
+    dt_cont[, DATE := as.Date(sub("T.*", "", DATE))]
+    dt_cont[, VALUE := as.numeric(VALUE)]
+    dt_cont[, VOLUME := as.numeric(VOLUME)]
 
-  # Join with metadata
-  dt_cont = merge(
-    melt(list_cont_codes, id.vars = "COMMODITY", variable.name = "TYPE", value.name = "RIC"),
-    dt_cont,
-    by = "RIC",
-    all.y = TRUE
-  )
-  rows_count = nrow(dt_cont)
+    # Join with metadata
+    dt_cont = merge(
+      melt(
+        list_cont_codes,
+        id.vars = "COMMODITY",
+        variable.name = "TYPE",
+        value.name = "RIC"
+      ),
+      dt_cont,
+      by = "RIC",
+      all.y = TRUE
+    )
+    rows_count = nrow(dt_cont)
 
-  print_retrieval_message(rics = unique(dt_cont$RIC), from_date = min(dt_cont$DATE), to_date = max(dt_cont$DATE), nrows = rows_count)
+    print_retrieval_message(
+      rics = unique(dt_cont$RIC),
+      from_date = min(dt_cont$DATE),
+      to_date = max(dt_cont$DATE),
+      nrows = rows_count
+    )
 
-  return(dt_cont)
-
+    return(dt_cont)
   }
-
 }
-
-
 
 
 ## Commenting -------------------------------------------------------------------------------------
@@ -239,6 +291,8 @@ retrieve_cont = function(list_continuation, start_train, end_train, cont = 'c1',
 #' @importFrom glue glue
 #' @export
 print_retrieval_done = function(message) {
-  formatted_message = glue::glue("{crayon::green('✔')} {crayon::green$bold(message)}")
+  formatted_message = glue::glue(
+    "{crayon::green('✔')} {crayon::green$bold(message)}"
+  )
   cat(formatted_message, "\n")
 }
