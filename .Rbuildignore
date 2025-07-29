@@ -8,3 +8,5 @@
 ^pkgdown$
 ^LICENSE\.md$
 ^\.github$
+^[.]?air[.]toml$
+^\.vscode$

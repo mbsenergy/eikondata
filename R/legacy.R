@@ -13,31 +13,46 @@
 #'
 #' @export
 safe_get_rics_d = function(tk, from_date, to_date) {
-  tryCatch({
-    dts = tryCatch({
-      eikondata::get_rics_d(tk, from_date = from_date, to_date = to_date)
-    }, error = function(e) {
+  tryCatch(
+    {
+      dts = tryCatch(
+        {
+          eikondata::get_rics_d(tk, from_date = from_date, to_date = to_date)
+        },
+        error = function(e) {
+          return(NULL)
+        }
+      )
+
+      if (is.null(dts) || nrow(dts) == 0) {
+        return(NULL)
+      }
+
+      setDT(dts)
+      dts[, date := as.IDate(date)]
+      full_dates = data.table(
+        date = seq(min(dts$date), max(dts$date), by = "day")
+      )
+      dtw = merge(full_dates, dts, by = "date", all.x = TRUE)
+
+      dtw[, `:=`(
+        volume = as.numeric(nafill(volume, type = "locf")),
+        value = as.numeric(nafill(value, type = "locf")),
+        ric = zoo::na.locf(ric, na.rm = FALSE)
+      )]
+
+      setnames(
+        dtw,
+        old = c("date", "ric", "value", "volume"),
+        new = c("TIMESTAMP", "RIC", "PRICE", "VOLUME")
+      )
+
+      return(dtw)
+    },
+    error = function(e) {
       return(NULL)
-    })
-
-    if (is.null(dts) || nrow(dts) == 0) return(NULL)
-
-    full_dates = data.table(date = seq(min(dts$date), max(dts$date), by = "day"))
-    dtw = merge(full_dates, dts, by = "date", all.x = TRUE)
-
-    dtw[, `:=`(
-      volume = as.numeric(nafill(volume, type = "locf")),
-      value  = as.numeric(nafill(value, type = "locf")),
-      ric    = zoo::na.locf(ric, na.rm = FALSE)
-    )]
-
-    setnames(dtw, old = c("date", "ric", "value", "volume"),
-             new = c("TIMESTAMP", "RIC", "PRICE", "VOLUME"))
-
-    return(dtw)
-  }, error = function(e) {
-    return(NULL)
-  })
+    }
+  )
 }
 
 #' Batch Retrieve and Format RIC Time Series Data
@@ -54,27 +69,35 @@ safe_get_rics_d = function(tk, from_date, to_date) {
 #'         `TIMESTAMP`, `VOLUME`, `PRICE`, and `RIC`. Tickers with no data or errors return `NULL`.
 #'
 #' @export
-merge_rics = function(list_tickers, start_date = Sys.Date() - (365 * 5), end_date = Sys.Date()) {
-
+merge_rics = function(
+  list_tickers,
+  start_date = Sys.Date() - (365 * 5),
+  end_date = Sys.Date()
+) {
   dt_list = lapply(list_tickers, function(tk) {
-
     Sys.sleep(2)
 
     dt = safe_get_rics_d(tk, from_date = start_date, to_date = end_date)
 
-    if (is.null(dt) || !all(c("TIMESTAMP", "RIC", "PRICE", "VOLUME") %in% names(dt))) {
+    if (
+      is.null(dt) ||
+        !all(c("TIMESTAMP", "RIC", "PRICE", "VOLUME") %in% names(dt))
+    ) {
       return(NULL)
     }
 
     setDT(dt)
     setcolorder(dt, c("TIMESTAMP", "VOLUME", "PRICE", "RIC"))
+    print_retrieval_message(tk, start_date, end_date)
     return(dt)
   })
 
   # Filter out NULLs before binding
   dt_list = Filter(Negate(is.null), dt_list)
 
-  if (length(dt_list) == 0) return(data.table())
+  if (length(dt_list) == 0) {
+    return(data.table())
+  }
 
   return(rbindlist(dt_list, use.names = TRUE, fill = TRUE))
 }
