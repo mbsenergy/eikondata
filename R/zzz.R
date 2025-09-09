@@ -7,10 +7,11 @@
 
   # Create a colorful message
   cat(crayon::cyan("Eikon Data.\n"))
-  cat(crayon::yellow("Version: 1.1.0\n"))
+  cat(crayon::yellow("Version: 1.1.3\n"))
   cat(crayon::yellow("Author: Eleonora Gasparri & Alejandro Abraham\n"))
-  cat(crayon::yellow("Reproduction and distribution are forbidden by license.\n"))
-
+  cat(crayon::yellow(
+    "Reproduction and distribution are forbidden by license.\n"
+  ))
 }
 
 # .flux_env = new.env(parent = emptyenv())
@@ -23,4 +24,3 @@
 #   }
 #   .flux_env$flux
 # }
-

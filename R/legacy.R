@@ -36,8 +36,8 @@ safe_get_rics_d = function(tk, from_date, to_date) {
       dtw = merge(full_dates, dts, by = "date", all.x = TRUE)
 
       dtw[, `:=`(
-        volume = as.numeric(nafill(volume, type = "locf")),
-        value = as.numeric(nafill(value, type = "locf")),
+        volume = as.numeric(nafill(as.numeric(volume), type = "locf")),
+        value = as.numeric(nafill(as.numeric(value), type = "locf")),
         ric = zoo::na.locf(ric, na.rm = FALSE)
       )]
 
