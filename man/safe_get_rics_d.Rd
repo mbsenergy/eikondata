@@ -4,7 +4,7 @@
 \alias{safe_get_rics_d}
 \title{Safely Retrieve and Format RIC Time Series Data}
 \usage{
-safe_get_rics_d(tk, from_date, to_date)
+safe_get_rics_d(tk, from_date, to_date, raw = FALSE)
 }
 \arguments{
 \item{tk}{Character string. The RIC ticker to retrieve.}
@@ -12,6 +12,8 @@ safe_get_rics_d(tk, from_date, to_date)
 \item{from_date}{Date. Start date of the time series.}
 
 \item{to_date}{Date. End date of the time series.}
+
+\item{raw}{to fill NAs from timeseries}
 }
 \value{
 A `data.table` with columns: `TIMESTAMP`, `RIC`, `PRICE`, and `VOLUME`,

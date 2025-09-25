@@ -8,7 +8,7 @@ get_rics_f(
   rics,
   from_date = Sys.Date() - (365 * 10),
   to_date = Sys.Date(),
-  legacy = FALSE
+  legacy = getOption("eikondata.legacy", FALSE)
 )
 }
 \arguments{

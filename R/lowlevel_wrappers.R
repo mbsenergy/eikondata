@@ -38,7 +38,7 @@ get_rics_d = function(
   rics,
   from_date = Sys.Date() - (365 * 10),
   to_date = Sys.Date(),
-  legacy = getOption("eikondata.legacy", FALSE)
+  legacy = getOption("eikondata.legacy", TRUE)
 ) {
   if (isFALSE(legacy)) {
     flux = load_flux_module()

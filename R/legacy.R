@@ -7,12 +7,13 @@
 #' @param tk Character string. The RIC ticker to retrieve.
 #' @param from_date Date. Start date of the time series.
 #' @param to_date Date. End date of the time series.
+#' @param raw to fill NAs from timeseries
 #'
 #' @return A `data.table` with columns: `TIMESTAMP`, `RIC`, `PRICE`, and `VOLUME`,
 #'         or `NULL` if retrieval fails or no data is available.
 #'
 #' @export
-safe_get_rics_d = function(tk, from_date, to_date) {
+safe_get_rics_d = function(tk, from_date, to_date, raw = FALSE) {
   tryCatch(
     {
       dts = tryCatch(
@@ -35,12 +36,20 @@ safe_get_rics_d = function(tk, from_date, to_date) {
       )
       dtw = merge(full_dates, dts, by = "date", all.x = TRUE)
 
-      dtw[, `:=`(
-        volume = as.numeric(nafill(as.numeric(volume), type = "locf")),
-        value = as.numeric(nafill(as.numeric(value), type = "locf")),
-        ric = zoo::na.locf(ric, na.rm = FALSE)
-      )]
-
+      if (isFALSE(raw)) {
+        dtw[, `:=`(
+          volume = as.numeric(nafill(as.numeric(volume), type = "locf")),
+          value = as.numeric(nafill(as.numeric(value), type = "locf")),
+          ric = zoo::na.locf(ric, na.rm = FALSE)
+        )]
+      }
+      if (isTRUE(raw)) {
+        dtw[, `:=`(
+          volume = as.numeric(volume),
+          value = as.numeric(value),
+          ric = zoo::na.locf(ric, na.rm = FALSE)
+        )]
+      }
       setnames(
         dtw,
         old = c("date", "ric", "value", "volume"),
@@ -64,6 +73,7 @@ safe_get_rics_d = function(tk, from_date, to_date) {
 #' @param list_tickers Character vector. List of RIC tickers to retrieve.
 #' @param start_date Date. Start date for retrieval (default: 5 years ago).
 #' @param end_date Date. End date for retrieval (default: today).
+#' @param raw to fill NAs from timeseries
 #'
 #' @return A list of `data.table`s (one per RIC) with columns:
 #'         `TIMESTAMP`, `VOLUME`, `PRICE`, and `RIC`. Tickers with no data or errors return `NULL`.
@@ -72,12 +82,28 @@ safe_get_rics_d = function(tk, from_date, to_date) {
 merge_rics = function(
   list_tickers,
   start_date = Sys.Date() - (365 * 5),
-  end_date = Sys.Date()
+  end_date = Sys.Date(),
+  raw = FALSE
 ) {
   dt_list = lapply(list_tickers, function(tk) {
     Sys.sleep(2)
 
-    dt = safe_get_rics_d(tk, from_date = start_date, to_date = end_date)
+    if (isTRUE(raw)) {
+      dt = safe_get_rics_d(
+        tk,
+        from_date = start_date,
+        to_date = end_date,
+        raw = TRUE
+      )
+    }
+    if (isFALSE(raw)) {
+      dt = safe_get_rics_d(
+        tk,
+        from_date = start_date,
+        to_date = end_date,
+        raw = FALSE
+      )
+    }
 
     if (
       is.null(dt) ||

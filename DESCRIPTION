@@ -1,7 +1,7 @@
 Package: eikondata
 Type: Package
 Title: Eikon Scripting API for R
-Version: 1.1.3
+Version: 1.2.0
 Author: MBS
 Maintainer: MBS <alejandro.abraham@cerved.com>
 Description: Provides a lightweight R interface to the LSEG Eikon Data API,

@@ -9,7 +9,7 @@ retrieve_cont(
   start_train,
   end_train,
   cont = "c1",
-  legacy = FALSE
+  legacy = getOption("eikondata.legacy", FALSE)
 )
 }
 \arguments{

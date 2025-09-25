@@ -7,7 +7,8 @@
 merge_rics(
   list_tickers,
   start_date = Sys.Date() - (365 * 5),
-  end_date = Sys.Date()
+  end_date = Sys.Date(),
+  raw = FALSE
 )
 }
 \arguments{
@@ -16,6 +17,8 @@ merge_rics(
 \item{start_date}{Date. Start date for retrieval (default: 5 years ago).}
 
 \item{end_date}{Date. End date for retrieval (default: today).}
+
+\item{raw}{to fill NAs from timeseries}
 }
 \value{
 A list of `data.table`s (one per RIC) with columns:

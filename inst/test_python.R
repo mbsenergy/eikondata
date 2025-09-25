@@ -7,7 +7,6 @@ set_app_id(as.character(PLEASE_INSERT_REUTERS_KEY[1]))
 
 options(eikondata.legacy = FALSE)
 
-
 # .flux_env = new.env(parent = emptyenv())
 
 # load_flux_module = function() {
